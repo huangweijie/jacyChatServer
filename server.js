@@ -1,5 +1,8 @@
-var express = require('express');
-var app = express();
+var express = require('express')
+var app = express()
+var mongo = require('./database/database.js')
+var bodyparser = require('body-parser')
+var route = require('./route.js')
 
 app.use('*', function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
@@ -9,17 +12,16 @@ app.use('*', function(req, res, next) {
     next();
 })
 
-app.post('/login', function(req, res) {
-	res.send({
-		code: 1
-	})
-})
-app.get('/getGroupList', function(req, res) {
-	res.send({
-		code: 1
-	})
-})
+app.use(bodyparser.json())
+
+app.post('/login', route.login)
+
+app.post('/register', route.register)
+
+app.get('/getGroupList', route.getGroupList)
 
 var server = app.listen(3000, function() {
 	console.log('server is start at localhost:3000')
 })
+
+
