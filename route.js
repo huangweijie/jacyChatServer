@@ -1,9 +1,19 @@
 var proxy = require('./proxy')
+var app = require('./server')
+var jwt = require('jwt-simple')
+
 
 exports.login = (req, res) => {
-	proxy.user.login(req.body, function(err, result) {
+	proxy.user.login(req.body, (err, result) => {
 		if(!err) {
 			if(result) {
+				let token = jwt.encode({
+					userName: result.userName
+				}, app.key)
+				res.cookie('access_token',token, {
+					maxAge: 31536000000,
+					httpOnly: true
+				})
 				res.send({
 					code: 1,
 					msg: 'login successful'
@@ -24,7 +34,7 @@ exports.login = (req, res) => {
 }
 
 exports.register = (req, res) => {
-	proxy.user.register(req.body, function(err, result) {
+	proxy.user.register(req.body, (err, result) => {
 		if(!err) {
 			res.send({
 				code: 1,
@@ -40,7 +50,56 @@ exports.register = (req, res) => {
 }
 
 exports.getGroupList = (req, res) => {
-	res.send({
-		code: 1
+	proxy.grouplist.getGroupList(res.locals.decode, (err, result) => {
+		if(!err) {
+			res.send({
+				code: 1,
+				grouplist: result
+			})
+		}else {
+			res.send({
+				code: 0,
+				msg: 'get groupList fail'
+			})
+		}
+	})
+}
+
+exports.search = (req, res) => {
+	var data = {
+		query: req.query,
+		userName: res.locals.decode
+	}
+	proxy.user.search(data, (err, result) => {
+		if(!err) {
+			res.send({
+				code: 0,
+				result: result
+			})
+		}else {
+			res.send({
+				code: 1,
+				msg: 'search fail'
+			})
+		}
+	})
+}
+
+exports.addFriend = (req, res) => {
+	proxy.user.addFriend({
+		addUser: res.locals.decode,
+		addedUser: req.body
+	}, (err, result) => {
+		if(!err) {
+			res.send({
+				code: 1,
+				msg: 'add successfully'
+			})
+		}else {
+			res.send({
+				code: 0,
+				msg: 'add fail'
+			})
+		}
 	})
 }

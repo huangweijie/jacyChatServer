@@ -3,8 +3,12 @@ var Schema = mongo.Schema;
 
 var userSchema = new Schema({
 	userId: String,
-	userName: String,
-	password: String
+	userName: {
+		type: String,
+		unique: true
+	},
+	password: String,
+	friendList: Array
 })
 
 var user = mongo.model('user', userSchema)

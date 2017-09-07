@@ -1,2 +1,2 @@
-exports.user = require('./user.js');
+exports.userModule = require('./user.js');
 exports.grouplist = require('./grouplist.js');
