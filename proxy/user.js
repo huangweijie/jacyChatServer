@@ -11,7 +11,7 @@ exports.register = (data, callback) => {
 		let group = new Module.grouplist({
 			userName: data.username,
 			groupName: '最近联系人',
-			groupStatus: true,
+			groupStatus: false,
 			groupList: []
 		})
 		return group.save()
@@ -22,7 +22,7 @@ exports.register = (data, callback) => {
 		let group = new Module.grouplist({
 			userName: data.username,
 			groupName: '我的好友',
-			groupStatus: true,
+			groupStatus: false,
 			groupList: []
 		})
 		return group.save()
@@ -33,7 +33,7 @@ exports.register = (data, callback) => {
 		let group = new Module.grouplist({
 			userName: data.username,
 			groupName: '陌生人',
-			groupStatus: true,
+			groupStatus: false,
 			groupList: []
 		})
 		group.save(callback)
@@ -92,22 +92,65 @@ exports.addFriend = (data, callback) => {
 	})
 	.exec((err, result) => {
 		if(!err) {
-			Module.userModule.update({
-				userName: data.addedUser.userName
+			Module.grouplist.update({
+				userName: data.addUser.userName,
+				groupName: '我的好友'
 			}, {
 				'$addToSet': {
-					friendList: data.addUser.userName
+					groupList: {
+						name: data.addedUser.userId,
+						contactId: data.addedUser.userName
+					}
 				}
 			})
 			.exec((err, result) => {
 				if(!err) {
-					callback && callback(null, result)
+					Module.userModule.update({
+						userName: data.addedUser.userName
+					}, {
+						'$addToSet': {
+							friendList: data.addUser.userName
+						}
+					})
+					.exec((err, result) => {
+						if(!err) {
+							Module.userModule.findOne({
+								userName: data.addUser.userName
+							})
+							.exec((err, result) => {
+								if(!err) {
+									Module.grouplist.update({
+										userName: data.addedUser.userName,
+										groupName: '我的好友'
+									}, {
+										'$addToSet': {
+											groupList: {
+												name: result.userId,
+												contactId: data.addUser.userName
+											}
+										}
+									})
+									.exec((err, result) => {
+										if(!err) {
+											callback && callback(null, result)
+										}else {
+											callback && callback(err)
+										}
+									})
+								}else {
+									callback && callback(err)
+								}
+							})
+						}else {
+							callback && callback(err)
+						}
+					})
 				}else {
 					callback && callback(err)
 				}
 			})
 		}else {
-			callback && callback(err)
+			callback && callback(err);
 		}
 	})
 }

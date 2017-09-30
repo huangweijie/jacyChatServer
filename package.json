@@ -13,5 +13,8 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
     "jwt-simple": "^0.5.1"
+  },
+  "devDependencies": {
+    "express-session": "^1.15.6"
   }
 }

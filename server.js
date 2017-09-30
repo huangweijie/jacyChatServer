@@ -7,6 +7,7 @@ var route = require('./route.js')
 var jwt = require('jwt-simple')
 var cookieparser = require('cookie-parser')
 var jwtDecode = require('./jwtDecode.js')
+// var session = require('express-session')
 
 app.use('*', function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -18,6 +19,11 @@ app.use('*', function(req, res, next) {
 
 app.use(bodyparser.json())
 app.use(cookieparser())
+// app.use(session({
+// 	secret: 'jacyhuang',
+// 	resave: true,
+// 	saveUninitialized: true
+// }))
 
 //加密秘钥
 app.set('jwtTokenSecret', 'jacyhuang')
