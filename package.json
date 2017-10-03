@@ -12,7 +12,9 @@
   "dependencies": {
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
-    "jwt-simple": "^0.5.1"
+    "jwt-simple": "^0.5.1",
+    "mongoose": "^4.11.14",
+    "socket.io": "^2.0.3"
   },
   "devDependencies": {
     "express-session": "^1.15.6"
