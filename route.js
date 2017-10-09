@@ -16,7 +16,8 @@ exports.login = (req, res) => {
 				})
 				res.send({
 					code: 1,
-					msg: 'login successful'
+					msg: 'login successful',
+					user: result.userId
 				})
 			}else {
 				res.send({
