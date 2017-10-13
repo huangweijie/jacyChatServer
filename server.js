@@ -38,6 +38,10 @@ app.get('/search', [jwtDecode], route.search)
 
 app.post('/addFriend', [jwtDecode], route.addFriend)
 
+app.post('/changePerMes', [jwtDecode], route.changePerMes)
+
+app.post('/updateRecent', [jwtDecode], route.updateRecent)
+
 
 
 
@@ -52,12 +56,16 @@ var server = app.listen(3000, function() {
 
 var io = require('socket.io')(server)
 
+let socketArr = {};
 io.on('connection', (socket) => {
-	socket.emit('news', {
-		hello: 'world'
-	});
-	socket.on('my other event', (data) => {
-		console.log(data);
+	socket.on('message', (data) => {
+		socketArr[data] = socket.id;
+	})
+	socket.on('send', (data) => {
+		console.log(data)
+		console.log(socketArr[data.to])
+		socket.emit('to' + data.to, data.mes);
+		socket.to(socketArr[data.to]).emit('to' + data.to, data.mes, data.from, data.fromName);
 	})
 	socket.on('disconnect', (reason) => {
 		console.log('connect close:', reason)

@@ -8,7 +8,11 @@ var userSchema = new Schema({
 		unique: true
 	},
 	password: String,
-	friendList: Array
+	friendList: Array,
+	head: {
+		type: Number,
+		default: 0
+	}
 })
 
 var user = mongo.model('user', userSchema)

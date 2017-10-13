@@ -25,18 +25,7 @@ exports.register = (data, callback) => {
 			groupStatus: false,
 			groupList: []
 		})
-		return group.save()
-	}, (err) => {
-		callback && callback(err)
-	})
-	.then(() => {
-		let group = new Module.grouplist({
-			userName: data.username,
-			groupName: '陌生人',
-			groupStatus: false,
-			groupList: []
-		})
-		group.save(callback)
+		return group.save(callback)
 	}, (err) => {
 		callback && callback(err)
 	})
@@ -75,6 +64,7 @@ exports.search = (data, callback) => {
 			}, {
 				userName: 1,
 				userId: 1,
+				head: 1,
 				_id: 0
 			})
 			.exec(callback)
@@ -99,7 +89,8 @@ exports.addFriend = (data, callback) => {
 				'$addToSet': {
 					groupList: {
 						name: data.addedUser.userId,
-						contactId: data.addedUser.userName
+						contactId: data.addedUser.userName,
+						head: data.addedUser.head
 					}
 				}
 			})
@@ -126,7 +117,8 @@ exports.addFriend = (data, callback) => {
 										'$addToSet': {
 											groupList: {
 												name: result.userId,
-												contactId: data.addUser.userName
+												contactId: data.addUser.userName,
+												head: result.head
 											}
 										}
 									})
@@ -151,6 +143,65 @@ exports.addFriend = (data, callback) => {
 			})
 		}else {
 			callback && callback(err);
+		}
+	})
+}
+
+exports.changePerMes = (data, callback) => {
+	Module.userModule.update({
+		userName: data.user.userName
+	}, {
+		userId: data.changeMes.userId,
+		head: data.changeMes.head
+	})
+	.exec(callback)
+}
+
+exports.updateRecent = (data, callback) => {
+	Module.grouplist.update({
+		userName: data.addUser.userName,
+		groupName: '最近联系人'
+	}, {
+		'$addToSet': {
+			groupList: {
+				name: data.addedUser.userId,
+				contactId: data.addedUser.userName,
+				head: data.addedUser.head
+			}
+		}
+	})
+	.exec((err, result) => {
+		if(!err) {
+			Module.userModule.findOne({
+				userName: data.addUser.userName
+			})
+			.exec((err, result) => {
+				if(!err) {
+					Module.grouplist.update({
+						userName: data.addedUser.userName,
+						groupName: '最近联系人'
+					}, {
+						'$addToSet': {
+							groupList: {
+								name: result.userId,
+								contactId: data.addUser.userName,
+								head: result.head
+							}
+						}
+					})
+					.exec((err, result) => {
+						if(!err) {
+							callback && callback(null, result)
+						}else {
+							callback && callback(err)
+						}
+					})
+				}else {
+					callback && callback(err)
+				}
+			})
+		}else {
+			callback && callback(err)
 		}
 	})
 }

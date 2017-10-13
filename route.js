@@ -17,7 +17,8 @@ exports.login = (req, res) => {
 				res.send({
 					code: 1,
 					msg: 'login successful',
-					user: result.userId
+					user: result.userId,
+					head: result.head
 				})
 			}else {
 				res.send({
@@ -37,6 +38,13 @@ exports.login = (req, res) => {
 exports.register = (req, res) => {
 	proxy.user.register(req.body, (err, result) => {
 		if(!err) {
+			let token = jwt.encode({
+				userName: req.body.username
+			}, app.key)
+			res.cookie('access_token',token, {
+				maxAge: 31536000000,
+				httpOnly: true
+			})
 			res.send({
 				code: 1,
 				msg: 'register successful'
@@ -100,6 +108,44 @@ exports.addFriend = (req, res) => {
 			res.send({
 				code: 0,
 				msg: 'add fail'
+			})
+		}
+	})
+}
+
+exports.changePerMes = (req, res) => {
+	proxy.user.changePerMes({
+		changeMes: req.body,
+		user: res.locals.decode
+	}, (err,result) => {
+		if(!err) {
+			res.send({
+				code: 1,
+				msg: 'save successfully'
+			})
+		}else {
+			res.send({
+				code: 0,
+				msg: 'save fail'
+			})
+		}
+	})
+}
+
+exports.updateRecent = (req, res) => {
+	proxy.user.updateRecent({
+		addUser: res.locals.decode,
+		addedUser: req.body
+	}, (err, result) => {
+		if(!err) {
+			res.send({
+				code: 1,
+				msg: 'update successfully'
+			})
+		}else {
+			res.send({
+				code: 0,
+				msg: 'update fail'
 			})
 		}
 	})
