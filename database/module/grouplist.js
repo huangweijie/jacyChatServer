@@ -2,7 +2,7 @@ let mongo = require('mongoose');
 var Schema = mongo.Schema;
 
 var groupSchema = new Schema({
-	userName: String,
+	userId: String,
 	groupName: String,
 	groupStatus: Boolean,
 	groupList: Array

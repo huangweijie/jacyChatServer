@@ -3,13 +3,13 @@ let Module = require('../database/module')
 exports.register = (data, callback) => {
 	let newUser = new Module.userModule({
 		userId: data.userId,
-		userName: data.username,
+		userName: data.userName,
 		password: data.password
 	})
 	newUser.save()
 	.then(() => {
 		let group = new Module.grouplist({
-			userName: data.username,
+			userId: data.userId,
 			groupName: '最近联系人',
 			groupStatus: false,
 			groupList: []
@@ -20,7 +20,7 @@ exports.register = (data, callback) => {
 	})
 	.then(() => {
 		let group = new Module.grouplist({
-			userName: data.username,
+			userId: data.userId,
 			groupName: '我的好友',
 			groupStatus: false,
 			groupList: []
@@ -33,7 +33,7 @@ exports.register = (data, callback) => {
 
 exports.login = (data, callback) => {
 	Module.userModule.findOne({
-		userName: data.username,
+		userId: data.userId,
 		password: data.password
 	}, {
 		_id: 0
@@ -43,7 +43,7 @@ exports.login = (data, callback) => {
 
 exports.search = (data, callback) => {
 	Module.userModule.findOne({
-		userName: data.userName.userName
+		userId: data.userId.userId
 	}, {
 		friendList: 1,
 		_id: 0
@@ -57,8 +57,8 @@ exports.search = (data, callback) => {
 						userId: new RegExp(data.query.searchMes, 'g')
 					}
 				],
-				'userName': {
-					'$ne': data.userName.userName,
+				'userId': {
+					'$ne': data.userId.userId,
 					'$nin': result.friendList
 				}
 			}, {
@@ -74,22 +74,22 @@ exports.search = (data, callback) => {
 
 exports.addFriend = (data, callback) => {
 	Module.userModule.update({
-		userName: data.addUser.userName
+		userId: data.addUser.userId
 	}, {
 		'$addToSet': {
-			friendList: data.addedUser.userName
+			friendList: data.addedUser.userId
 		}
 	})
 	.exec((err, result) => {
 		if(!err) {
 			Module.grouplist.update({
-				userName: data.addUser.userName,
+				userId: data.addUser.userId,
 				groupName: '我的好友'
 			}, {
 				'$addToSet': {
 					groupList: {
-						name: data.addedUser.userId,
-						contactId: data.addedUser.userName,
+						name: data.addedUser.userName,
+						contactId: data.addedUser.userId,
 						head: data.addedUser.head
 					}
 				}
@@ -97,27 +97,27 @@ exports.addFriend = (data, callback) => {
 			.exec((err, result) => {
 				if(!err) {
 					Module.userModule.update({
-						userName: data.addedUser.userName
+						userId: data.addedUser.userId
 					}, {
 						'$addToSet': {
-							friendList: data.addUser.userName
+							friendList: data.addUser.userId
 						}
 					})
 					.exec((err, result) => {
 						if(!err) {
 							Module.userModule.findOne({
-								userName: data.addUser.userName
+								userId: data.addUser.userId
 							})
 							.exec((err, result) => {
 								if(!err) {
 									Module.grouplist.update({
-										userName: data.addedUser.userName,
+										userId: data.addedUser.userId,
 										groupName: '我的好友'
 									}, {
 										'$addToSet': {
 											groupList: {
-												name: result.userId,
-												contactId: data.addUser.userName,
+												name: result.userName,
+												contactId: data.addUser.userId,
 												head: result.head
 											}
 										}
@@ -149,9 +149,9 @@ exports.addFriend = (data, callback) => {
 
 exports.changePerMes = (data, callback) => {
 	Module.userModule.update({
-		userName: data.user.userName
+		userId: data.user.userId
 	}, {
-		userId: data.changeMes.userId,
+		userName: data.changeMes.userName,
 		head: data.changeMes.head
 	})
 	.exec(callback)
@@ -159,13 +159,13 @@ exports.changePerMes = (data, callback) => {
 
 exports.updateRecent = (data, callback) => {
 	Module.grouplist.update({
-		userName: data.addUser.userName,
+		userId: data.addUser.userId,
 		groupName: '最近联系人'
 	}, {
 		'$addToSet': {
 			groupList: {
-				name: data.addedUser.userId,
-				contactId: data.addedUser.userName,
+				name: data.addedUser.userName,
+				contactId: data.addedUser.userId,
 				head: data.addedUser.head
 			}
 		}
@@ -173,18 +173,18 @@ exports.updateRecent = (data, callback) => {
 	.exec((err, result) => {
 		if(!err) {
 			Module.userModule.findOne({
-				userName: data.addUser.userName
+				userId: data.addUser.userId
 			})
 			.exec((err, result) => {
 				if(!err) {
 					Module.grouplist.update({
-						userName: data.addedUser.userName,
+						userId: data.addedUser.userId,
 						groupName: '最近联系人'
 					}, {
 						'$addToSet': {
 							groupList: {
-								name: result.userId,
-								contactId: data.addUser.userName,
+								name: result.userName,
+								contactId: data.addUser.userId,
 								head: result.head
 							}
 						}

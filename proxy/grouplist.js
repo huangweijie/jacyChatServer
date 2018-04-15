@@ -2,10 +2,10 @@ let Module = require('../database/module')
 
 exports.getGroupList = (data, callback) => {
 	Module.grouplist.find({
-		userName: data.userName
+		userId: data.userId
 	}, {
 		_id: 0,
-		userName: 0
+		userId: 0
 	})
 	.exec(callback)
 }

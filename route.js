@@ -5,10 +5,11 @@ var jwt = require('jwt-simple')
 
 exports.login = (req, res) => {
 	proxy.user.login(req.body, (err, result) => {
+		console.log(result)
 		if(!err) {
 			if(result) {
 				let token = jwt.encode({
-					userName: result.userName
+					userId: result.userId
 				}, app.key)
 				res.cookie('access_token',token, {
 					maxAge: 31536000000,
@@ -17,7 +18,7 @@ exports.login = (req, res) => {
 				res.send({
 					code: 1,
 					msg: 'login successful',
-					user: result.userId,
+					user: result.userName,
 					head: result.head
 				})
 			}else {
@@ -39,7 +40,7 @@ exports.register = (req, res) => {
 	proxy.user.register(req.body, (err, result) => {
 		if(!err) {
 			let token = jwt.encode({
-				userName: req.body.username
+				userId: req.body.userId
 			}, app.key)
 			res.cookie('access_token',token, {
 				maxAge: 31536000000,
@@ -77,7 +78,7 @@ exports.getGroupList = (req, res) => {
 exports.search = (req, res) => {
 	var data = {
 		query: req.query,
-		userName: res.locals.decode
+		userId: res.locals.decode
 	}
 	proxy.user.search(data, (err, result) => {
 		if(!err) {

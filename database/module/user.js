@@ -2,8 +2,8 @@ let mongo = require('mongoose');
 var Schema = mongo.Schema;
 
 var userSchema = new Schema({
-	userId: String,
-	userName: {
+	userName: String,
+	userId: {
 		type: String,
 		unique: true
 	},
