@@ -1,34 +1,70 @@
-let Module = require('../database/module')
+let Module = require('../database/module');
+
+let formidable = require('formidable');
+let fs = require('fs');
+
+const host = 'http://localhost:3000/';
+
+function rename(old, _new, code, bId) {
+	var path = './public/' + code + '/';
+	if (fs.existsSync(path)) {
+		_new = _new.split('.');
+		name = _new[0] + new Date().getTime() + '.' + _new[1];
+		fs.renameSync(old, path + name);
+	} else {
+		fs.mkdir(path);
+		_new = _new.split('.');
+		name = _new[0] + new Date().getTime() + '.' + _new[1];
+		fs.renameSync(old, path + name);
+	}
+	return name;
+}
 
 exports.register = (data, callback) => {
-	let newUser = new Module.userModule({
-		userId: data.userId,
-		userName: data.userName,
-		password: data.password
-	})
-	newUser.save()
-	.then(() => {
-		let group = new Module.grouplist({
-			userId: data.userId,
-			groupName: '最近联系人',
-			groupStatus: false,
-			groupList: []
+	let form = new formidable.IncomingForm();
+	form.uploadDir = './public/';
+	var registerData;
+	form.parse(data, function(err, fields, files) {
+		registerData = fields;
+		if (files.head) {
+			var name = rename(files.head.path, files.head.name, 'head');
+			registerData.head = host + 'head/' + name;
+		} else {
+			registerData.head = 'null';
+		};
+
+		let newUser = new Module.userModule({
+			_id: registerData.userId,
+			userId: registerData.userId,
+			userName: registerData.userName,
+			password: registerData.password,
+			sex: registerData.sex,
+			head: registerData.head
 		})
-		return group.save()
-	}, (err) => {
-		callback && callback(err)
-	})
-	.then(() => {
-		let group = new Module.grouplist({
-			userId: data.userId,
-			groupName: '我的好友',
-			groupStatus: false,
-			groupList: []
+		newUser.save()
+		.then(() => {
+			let group = new Module.grouplist({
+				userId: data.userId,
+				groupName: 'chat',
+				groupStatus: false,
+				groupList: []
+			})
+			return group.save()
 		})
-		return group.save(callback)
-	}, (err) => {
-		callback && callback(err)
+		.then(() => {
+			let group = new Module.grouplist({
+				userId: data.userId,
+				groupName: 'contact',
+				groupStatus: false,
+				groupList: []
+			})
+			return group.save(callback.bind(null, registerData))
+		})
+		.catch((err) => {
+			callback && callback(err)
+		})
 	})
+
 }
 
 exports.login = (data, callback) => {
@@ -84,7 +120,7 @@ exports.addFriend = (data, callback) => {
 		if(!err) {
 			Module.grouplist.update({
 				userId: data.addUser.userId,
-				groupName: '我的好友'
+				groupName: 'contact'
 			}, {
 				'$addToSet': {
 					groupList: {
@@ -112,7 +148,7 @@ exports.addFriend = (data, callback) => {
 								if(!err) {
 									Module.grouplist.update({
 										userId: data.addedUser.userId,
-										groupName: '我的好友'
+										groupName: 'contact'
 									}, {
 										'$addToSet': {
 											groupList: {
@@ -155,53 +191,4 @@ exports.changePerMes = (data, callback) => {
 		head: data.changeMes.head
 	})
 	.exec(callback)
-}
-
-exports.updateRecent = (data, callback) => {
-	Module.grouplist.update({
-		userId: data.addUser.userId,
-		groupName: '最近联系人'
-	}, {
-		'$addToSet': {
-			groupList: {
-				name: data.addedUser.userName,
-				contactId: data.addedUser.userId,
-				head: data.addedUser.head
-			}
-		}
-	})
-	.exec((err, result) => {
-		if(!err) {
-			Module.userModule.findOne({
-				userId: data.addUser.userId
-			})
-			.exec((err, result) => {
-				if(!err) {
-					Module.grouplist.update({
-						userId: data.addedUser.userId,
-						groupName: '最近联系人'
-					}, {
-						'$addToSet': {
-							groupList: {
-								name: result.userName,
-								contactId: data.addUser.userId,
-								head: result.head
-							}
-						}
-					})
-					.exec((err, result) => {
-						if(!err) {
-							callback && callback(null, result)
-						}else {
-							callback && callback(err)
-						}
-					})
-				}else {
-					callback && callback(err)
-				}
-			})
-		}else {
-			callback && callback(err)
-		}
-	})
 }

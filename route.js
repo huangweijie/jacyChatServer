@@ -5,7 +5,6 @@ var jwt = require('jwt-simple')
 
 exports.login = (req, res) => {
 	proxy.user.login(req.body, (err, result) => {
-		console.log(result)
 		if(!err) {
 			if(result) {
 				let token = jwt.encode({
@@ -18,8 +17,12 @@ exports.login = (req, res) => {
 				res.send({
 					code: 1,
 					msg: 'login successful',
-					user: result.userName,
-					head: result.head
+					user: {
+						userName: result.userName,
+						userId: result.userId,
+						sex: result.sex,
+						head: result.head
+					}
 				})
 			}else {
 				res.send({
@@ -37,7 +40,7 @@ exports.login = (req, res) => {
 }
 
 exports.register = (req, res) => {
-	proxy.user.register(req.body, (err, result) => {
+	proxy.user.register(req, (data, err, result) => {
 		if(!err) {
 			let token = jwt.encode({
 				userId: req.body.userId
@@ -48,7 +51,13 @@ exports.register = (req, res) => {
 			})
 			res.send({
 				code: 1,
-				msg: 'register successful'
+				msg: 'register successful',
+				user: {
+					userName: data.userName,
+					userId: data.userId,
+					sex: data.sex,
+					head: data.head
+				}
 			})
 		}else {
 			res.send({
@@ -70,6 +79,22 @@ exports.getGroupList = (req, res) => {
 			res.send({
 				code: 0,
 				msg: 'get groupList fail'
+			})
+		}
+	})
+}
+
+exports.getContactList = (req, res) => {
+	proxy.grouplist.getContactList(res.locals.decode, (err, result) => {
+		if(!err) {
+			res.send({
+				code: 1,
+				contactList: result
+			})
+		}else {
+			res.send({
+				code: 0,
+				msg: 'get getContactList fail'
 			})
 		}
 	})
@@ -133,18 +158,43 @@ exports.changePerMes = (req, res) => {
 	})
 }
 
-exports.updateRecent = (req, res) => {
-	proxy.user.updateRecent({
-		addUser: res.locals.decode,
-		addedUser: req.body
-	}, (err, result) => {
+/**
+ * 获取最近聊天列表
+ * @type {[type]}
+ */
+exports.getChatList = (req, res) => {
+	proxy.recent.getChatList(res.locals.decode, (err, result) => {
 		if(!err) {
 			res.send({
+				code: 1,
+				chatList: result
+			})
+		}else {
+			res.send({
+				code: 0,
+				msg: 'get getChatList fail'
+			})
+		}
+	})
+}
+
+exports.updateRecentMes = (req, res, data) => {
+	proxy.recent.updateRecentMes({
+		from: res && res.locals.decode.userId || data.from,
+		to: req && req.body.to || data.to,
+		mes: data.mes || null,
+		fromHead: req && req.body.fromHead || data.fromHead,
+		toHead: req && req.body.toHead || data.toHead,
+		fromName: req && req.body.fromName || data.fromName,
+		toName: req && req.body.toName || data.toName
+	}, (err, result) => {
+		if(!err) {
+			res && res.send({
 				code: 1,
 				msg: 'update successfully'
 			})
 		}else {
-			res.send({
+			res && res.send({
 				code: 0,
 				msg: 'update fail'
 			})

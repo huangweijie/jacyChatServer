@@ -2,6 +2,7 @@ let mongo = require('mongoose');
 var Schema = mongo.Schema;
 
 var userSchema = new Schema({
+	_id: String,
 	userName: String,
 	userId: {
 		type: String,
@@ -10,6 +11,10 @@ var userSchema = new Schema({
 	password: String,
 	friendList: Array,
 	head: {
+		type: String,
+		default: ''
+	},
+	sex: {
 		type: Number,
 		default: 0
 	}

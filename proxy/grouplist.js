@@ -9,3 +9,15 @@ exports.getGroupList = (data, callback) => {
 	})
 	.exec(callback)
 }
+
+exports.getContactList = (data, callback) => {
+    Module.grouplist.findOne({
+        userId: data.userId,
+        groupName: 'contact'
+    }, {
+        _id: 0,
+        userId: 0,
+        groupName: 0
+    })
+    .exec(callback)
+}

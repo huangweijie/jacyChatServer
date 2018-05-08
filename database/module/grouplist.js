@@ -5,7 +5,11 @@ var groupSchema = new Schema({
 	userId: String,
 	groupName: String,
 	groupStatus: Boolean,
-	groupList: Array
+	groupList: Array,
+    mes: {
+        type: String,
+        default: null
+    }
 })
 
 var group = mongo.model('group', groupSchema)

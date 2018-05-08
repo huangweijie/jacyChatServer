@@ -25,6 +25,8 @@ app.use(cookieparser())
 // 	saveUninitialized: true
 // }))
 
+app.use(express.static('public'));
+
 //加密秘钥
 app.set('jwtTokenSecret', 'jacyhuang')
 
@@ -34,13 +36,17 @@ app.post('/register', route.register)
 
 app.get('/getGroupList', [jwtDecode], route.getGroupList)
 
+app.get('/getChatList', [jwtDecode], route.getChatList)
+
+app.get('/getContactList', [jwtDecode], route.getContactList)
+
 app.get('/search', [jwtDecode], route.search)
 
 app.post('/addFriend', [jwtDecode], route.addFriend)
 
 app.post('/changePerMes', [jwtDecode], route.changePerMes)
 
-app.post('/updateRecent', [jwtDecode], route.updateRecent)
+app.post('/updateRecentMes', [jwtDecode], route.updateRecentMes)
 
 
 
@@ -62,10 +68,13 @@ io.on('connection', (socket) => {
 		socketArr[data] = socket.id;
 	})
 	socket.on('send', (data) => {
-		console.log(data)
-		console.log(socketArr[data.to])
+		// console.log(data)
+		// console.log(socketArr[data.to])
 		socket.emit('to' + data.to, data.mes);
 		socket.to(socketArr[data.to]).emit('to' + data.to, data.mes, data.from, data.fromName);
+		//更新消息记录
+		//更新最近联系
+		route.updateRecentMes(null, null, data);
 	})
 	socket.on('disconnect', (reason) => {
 		console.log('connect close:', reason)
