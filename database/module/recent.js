@@ -3,19 +3,21 @@ var Schema = mongo.Schema;
 
 var recentSchema = new Schema({
     // belongUserId: String,
-    from: String,
-    fromHead: String,
-    to: String,
-    toHead: String,
-    fromName: String,
-    toName: String,
+    from: {
+        type: String,
+        ref: 'user'
+    },
+    to: {
+        type: String,
+        ref: 'user'
+    },
     mes: {
         type: String,
         default: null
     },
     updated: {
         type: Date,
-        default: +new Date
+        default: Date.now
     }
 
 })

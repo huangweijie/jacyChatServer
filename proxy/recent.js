@@ -17,17 +17,16 @@ exports.updateRecentMes = (data, callback) => {
                 return;
             }
             Module.recent.update({
-                from: data.from,
-                to: data.to
+                $or: [{
+                    from: data.from,
+                    to: data.to
+                }, {
+                    to: data.from,
+                    from: data.to
+                }]
             }, {
                 mes: data.mes,
-                updated: +new Date,
-                fromHead: data.fromHead,
-                toHead: data.toHead,
-                fromName: data.fromName,
-                toName: data.toName
-            }, {
-                upsert: true
+                updated: new Date,
             })
             .exec(callback)
         }else {
@@ -46,6 +45,7 @@ exports.getChatList = (data, callback) => {
     }, {
         _id: 0
     })
+    .populate('from to')
     .sort({
         updated: -1
     })

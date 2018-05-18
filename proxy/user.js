@@ -44,7 +44,7 @@ exports.register = (data, callback) => {
 		newUser.save()
 		.then(() => {
 			let group = new Module.grouplist({
-				userId: data.userId,
+				userId: registerData.userId,
 				groupName: 'chat',
 				groupStatus: false,
 				groupList: []
@@ -53,7 +53,7 @@ exports.register = (data, callback) => {
 		})
 		.then(() => {
 			let group = new Module.grouplist({
-				userId: data.userId,
+				userId: registerData.userId,
 				groupName: 'contact',
 				groupStatus: false,
 				groupList: []
@@ -61,7 +61,7 @@ exports.register = (data, callback) => {
 			return group.save(callback.bind(null, registerData))
 		})
 		.catch((err) => {
-			callback && callback(err)
+			callback && callback(null, err)
 		})
 	})
 
@@ -98,10 +98,9 @@ exports.search = (data, callback) => {
 					'$nin': result.friendList
 				}
 			}, {
-				userName: 1,
-				userId: 1,
-				head: 1,
-				_id: 0
+				password: 0,
+				_id: 0,
+				friendList: 0
 			})
 			.exec(callback)
 		}

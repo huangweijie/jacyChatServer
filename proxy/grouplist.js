@@ -19,5 +19,6 @@ exports.getContactList = (data, callback) => {
         userId: 0,
         groupName: 0
     })
+    .populate('groupList')
     .exec(callback)
 }

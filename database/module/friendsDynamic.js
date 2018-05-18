@@ -1,10 +1,11 @@
 let mongo = require('mongoose');
 var Schema = mongo.Schema;
 
-var allSchema = require('./index');
-
 var friendDynamicSchema = new Schema({
-    userId: String,
+    user: {
+        type: String,
+        ref: 'user'
+    },
     mes: String,
     imgList: {
         type: Array,
@@ -13,27 +14,27 @@ var friendDynamicSchema = new Schema({
     favour: [{
         user: {
             type: String,
-            ref: allSchema.userModule
+            ref: 'user'
         },
         date: {
             type: Date,
-            default: +new Date
+            default: Date.now
         }
     }],
     comment: [{
         user: {
             type: String,
-            ref: allSchema.userModule
+            ref: 'user'
         },
         date: {
             type: Date,
-            default: +new Date
+            default: Date.now
         },
         mes: String
     }],
     date: {
         type: Date,
-        default: +new Date
+        default: Date.now
     },
 })
 

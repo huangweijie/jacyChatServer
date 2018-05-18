@@ -48,8 +48,29 @@ app.post('/changePerMes', [jwtDecode], route.changePerMes)
 
 app.post('/updateRecentMes', [jwtDecode], route.updateRecentMes)
 
+app.post('/pubWish', [jwtDecode], route.pubWish);
 
+app.get('/getWishList', route.getWishList);
 
+app.get('/searchWish', route.searchWish);
+
+app.get('/getMessageList', [jwtDecode], route.getMessageList);
+
+app.get('/getMyWishList', [jwtDecode], route.getMyWishList);
+
+app.post('/getWish', [jwtDecode], route.getWish);
+
+app.get('/getContactMes', [jwtDecode], route.getContactMes);
+
+app.post('/pushFriendDy', [jwtDecode], route.pushFriendDy);
+
+app.get('/getFriendDy', [jwtDecode], route.getFriendDy);
+
+app.post('/favour', [jwtDecode], route.favour);
+
+app.post('/unfavour', [jwtDecode], route.unfavour);
+
+app.post('/pushComment', [jwtDecode], route.pushComment);
 
 var server = app.listen(3000, function() {
 	console.log('server is start at localhost:3000')
@@ -75,6 +96,8 @@ io.on('connection', (socket) => {
 		//更新消息记录
 		//更新最近联系
 		route.updateRecentMes(null, null, data);
+
+		route.updateContactMes(data);
 	})
 	socket.on('disconnect', (reason) => {
 		console.log('connect close:', reason)

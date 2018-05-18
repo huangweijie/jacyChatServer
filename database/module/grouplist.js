@@ -5,7 +5,10 @@ var groupSchema = new Schema({
 	userId: String,
 	groupName: String,
 	groupStatus: Boolean,
-	groupList: Array,
+	groupList: [{
+        type: String,
+        ref: 'user'
+    }],
     mes: {
         type: String,
         default: null
